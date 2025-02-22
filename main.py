@@ -20,12 +20,14 @@ def run_command(c_code, params):
     else:
         if c_code == 'add':
             return add_task(params)
-        elif c_code == 'list':
-            return list_task()
+        elif c_code in ['list', 'list todo', 'list done', 'list in-progress']:
+            return list_task(params)
         elif c_code == 'delete':
             return delete_task(params)
         elif c_code == 'update':
             return update_task(params)
+        elif c_code in ['mark-in-progress', 'mark-done']:
+            return mark_task(c_code, params)
         else:
             return f'Unknown command'
 
@@ -55,13 +57,22 @@ def add_task(params):
 
     return f'Task added'
 
-def list_task():
+def list_task(params):
     data = json.load(open('tasks.json'))
+
     if len(data) == 0:
         return f'List is empty'
-    for i in range(0, len(data)):
-        print(data[i])
-    return f'All tasks listed'
+    elif params == '':
+        for i in range(len(data)):
+                print(data[i])
+        return f'All tasks listed'
+    elif params in ['todo', 'done', 'in-progress']:
+        for i in range(len(data)):
+            if data[i]['status'] == params:
+                print(data[i])
+    else:
+        return f'Invalid status type'
+    return f'All {params} tasks listed'
 
 def delete_task(params):
     data = json.load(open('tasks.json'))
@@ -90,7 +101,21 @@ def update_task(params):
             data[i]['description'] = task_desc
             with open('tasks.json', 'w') as f:
                 json.dump(data, f, indent=4)
-            return f'Task updated'
+            return f'Task description updated'
+    return f'No mathing id'
+
+def mark_task(c_code, params):
+    data = json.load(open('tasks.json'))
+
+    for i in range(len(data)):
+        if data[i]['id'] == int(params):
+            if c_code == 'mark-in-progress':
+                data[i]['status'] = 'in-progress'
+            else:
+                data[i]['status'] = 'done'
+            with open('tasks.json', 'w') as f:
+                json.dump(data, f, indent=4)
+            return f'Task status updated'
     return f'No mathing id'
 
 def main():
