@@ -11,55 +11,71 @@ def parse_command(command):
     return run_command(c_code[0], params)
 
 def run_command(c_code, params):
-    if c_code == 'add':
-        return add_task(params)
-    elif c_code == 'list':
-        return list_task()
+    if not os.path.exists('tasks.json'):
+        print('There is no file to edit')
+
+        with open('tasks.json', 'w') as f:
+            json.dump([], f, indent = 4)
+        return f'File created, please write a command'
     else:
-        return f'Unknown command'
+        if c_code == 'add':
+            return add_task(params)
+        elif c_code == 'list':
+            return list_task()
+        elif c_code == 'delete':
+            return delete_task(params)
+        else:
+            return f'Unknown command'
 
 def add_task(params):
     current_time = datetime.now()
     f_time = current_time.strftime('%H:%M %d %B %Y')
 
-    if not os.path.exists('tasks.json'):
-        w_json = [
+    with open('tasks.json', 'r') as f:
+        data = json.load(f)
+        data_id = 1
+
+        if len(data) > 0:
+            data_id = data[-1]['id'] + 1
+
+        data.append(
             {
-            'id': 1,
-            'description': params,
-            'status': 'todo',
-            'createdAt': f_time,
-            'updatedAt': f_time
+                'id': data_id,
+                'description': params,
+                'status': 'todo',
+                'createdAt': f_time,
+                'updatedAt': f_time
             }
-        ]
-        with open('tasks.json', 'w') as f:
-            json.dump(w_json, f, indent = 4)
-    else:
-        with open('tasks.json', 'r') as f:
-            data = json.load(f)
-            data.append(
-                {
-                    'id': data[-1]['id'] + 1,
-                    'description': params,
-                    'status': 'todo',
-                    'createdAt': f_time,
-                    'updatedAt': f_time
-                }
-            )
+        )
+
         with open('tasks.json', 'w') as f:
             json.dump(data, f, indent = 4)
 
     return f'Task added'
 
 def list_task():
-    if not os.path.exists('tasks.json'):
-        return f'There is no file to list.'
-    else:
-        with open('tasks.json', 'r') as f:
-            data = json.load(f)
-            for i in range(0, len(data)):
-                print(data[i])
+    data = json.load(open('tasks.json'))
+    if len(data) == 0:
+        return f'List is empty'
+    for i in range(0, len(data)):
+        print(data[i])
     return f'All tasks listed'
+
+def delete_task(params):
+    data = json.load(open('tasks.json'))
+    temp_len = len(data)
+
+    for i in range(temp_len):
+        if data[i]['id'] == int(params):
+            data.pop(i)
+            break
+
+    if temp_len == len(data):
+        return f'No matching id'
+
+    with open('tasks.json', 'w') as f:
+        json.dump(data, f, indent = 4)
+    return f'Task deleted'
 
 def main():
     try:
