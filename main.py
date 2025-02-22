@@ -94,11 +94,15 @@ def update_task(params):
     task_id = int(params[0:1])
     task_desc = params[2:]
 
+    current_time = datetime.now()
+    f_time = current_time.strftime('%H:%M %d %B %Y')
+
     data = json.load(open('tasks.json'))
 
     for i in range(len(data)):
         if data[i]['id'] == task_id:
             data[i]['description'] = task_desc
+            data[i]['updatedAt'] = f_time
             with open('tasks.json', 'w') as f:
                 json.dump(data, f, indent=4)
             return f'Task description updated'
@@ -107,12 +111,20 @@ def update_task(params):
 def mark_task(c_code, params):
     data = json.load(open('tasks.json'))
 
+    current_time = datetime.now()
+    f_time = current_time.strftime('%H:%M %d %B %Y')
+
     for i in range(len(data)):
         if data[i]['id'] == int(params):
             if c_code == 'mark-in-progress':
+                if data[i]['status'] == 'in-progress':
+                    return f'Task\'s status is already in-progress'
                 data[i]['status'] = 'in-progress'
             else:
+                if data[i]['status'] == 'done':
+                    return f'Task\'s status is already done'
                 data[i]['status'] = 'done'
+            data[i]['updatedAt'] = f_time
             with open('tasks.json', 'w') as f:
                 json.dump(data, f, indent=4)
             return f'Task status updated'
