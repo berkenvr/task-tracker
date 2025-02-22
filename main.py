@@ -24,6 +24,8 @@ def run_command(c_code, params):
             return list_task()
         elif c_code == 'delete':
             return delete_task(params)
+        elif c_code == 'update':
+            return update_task(params)
         else:
             return f'Unknown command'
 
@@ -76,6 +78,20 @@ def delete_task(params):
     with open('tasks.json', 'w') as f:
         json.dump(data, f, indent = 4)
     return f'Task deleted'
+
+def update_task(params):
+    task_id = int(params[0:1])
+    task_desc = params[2:]
+
+    data = json.load(open('tasks.json'))
+
+    for i in range(len(data)):
+        if data[i]['id'] == task_id:
+            data[i]['description'] = task_desc
+            with open('tasks.json', 'w') as f:
+                json.dump(data, f, indent=4)
+            return f'Task updated'
+    return f'No mathing id'
 
 def main():
     try:
