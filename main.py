@@ -28,8 +28,13 @@ def run_command(c_code, params):
             return update_task(params)
         elif c_code in ['mark-in-progress', 'mark-done']:
             return mark_task(c_code, params)
+        elif c_code == 'exit':
+            print('Tasking completed')
+            return exit()
+        elif c_code == 'help':
+            return get_help()
         else:
-            return f'Unknown command'
+            return f'Unknown command, please write \'help\' to list all commands'
 
 def add_task(params):
     current_time = datetime.now()
@@ -130,6 +135,25 @@ def mark_task(c_code, params):
             return f'Task status updated'
     return f'No mathing id'
 
+def get_help():
+    command_list = [
+        'add <description> -> to add task',
+        'list -> to list all tasks',
+        'list todo -> to list \'status: todo\' tasks',
+        'list in-progress -> to list \'status: in-progress\' tasks',
+        'list done -> to list \'status: done\' tasks',
+        'delete <id> -> to delete selected task',
+        'update <id> <description> -> to update selected task\'s description',
+        'mark-in-progress <id>, mark-done <id> -> to change selected task\'s status',
+        'exit -> to exit'
+        'help -> to get help about commands',
+    ]
+
+    for i in command_list:
+        print(i)
+
+    return f'All commands listed'
+
 def main():
     try:
         while True:
@@ -137,7 +161,7 @@ def main():
             result = parse_command(command)
             print(result)
     except KeyboardInterrupt:
-        print('Tasking completed')
+        print('\nTasking completed')
 
 if __name__ == '__main__':
     main()
