@@ -96,8 +96,11 @@ def delete_task(params):
     return f'Task deleted'
 
 def update_task(params):
-    task_id = int(params[0:1])
-    task_desc = params[2:]
+    try:
+        task_id_str, task_desc = params.split(maxsplit=1)
+        task_id = int(task_id_str)
+    except ValueError:
+        return 'Invalid parameters. Correct format: update <id> <description>'
 
     current_time = datetime.now()
     f_time = current_time.strftime('%H:%M %d %B %Y')
